@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+  <link rel="stylesheet" href="">
+  <style>
+  .nav-box {
+      position: relative;
+  }
+
+  ul {
+    padding: 0;
+  }
+
+ul a {
+  text-decoration: none;
+}
+
+  .nav-box ul li {
+      list-style: none;
+      float: left;
+      padding: 0 12px;
+  }
+
+  .nav-box ul li:first-child {
+      padding: 0 12px 0 0;
+  }
+
+  .nav-box .nav-line {
+      position: absolute;
+      bottom: -35px;
+      height: 3px;
+      line-height: 10px;
+      font-size: 0;
+  }
+  </style>
+</head>
+
+<body>
+    <h4 id="section1">导航插件</h4>
+    <div class="nav-box">
+      <ul>
+          <li><a href="#">选择套餐</a></li>
+          <li id="order"><a href="#">我的订单</a></li>
+          <li id="coupon"><a href="#">我的优惠券</a></li>
+          <li id="car"><a href="#">我的车库</a></li>
+          <li id="profile" class="cur"><a href="#">个人资料</a></li>
+      </ul>
+      <div class="nav-line"></div>
+    </div>
+
+</body>
+<script src="http://cdn.bootcss.com/jquery/2.1.0/jquery.min.js"></script>
+<script type="text/javascript">
+/**
+  * 插件基础
+  *
+ */
+(function ($) {
+
+    var settings = {
+        'location'         : 'left',
+        'background-color' : 'blue'
+    };
+
+    var methods = {
+      init : function( options ) {
+         return $(window).bind('resize.tooltip', methods.hover);
+      },
+      show : function( ) {},
+      hide : function( ) {},
+      update : function( content ) {},
+      hover :function () {
+         console.log(settings);
+      }
+    };
+
+    $.fn.tooltip = function (method,options) {
+
+        return this.each(function() {
+            var $this = $(this);
+            if (options) {
+              $.extend( settings, options );
+            }
+
+            // Method calling logic
+            if ( methods[method] ) {
+              // return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+              return methods[ method ].call( this, settings );
+            } else if ( typeof method === 'object' || ! method ) {
+              return methods.init.apply( this, arguments );
+            } else {
+              $.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
+            }
+
+        });
+    }
+})(jQuery);
+
+$('#section1').tooltip();
+$('#section1').tooltip('hover',jQuery.parseJSON('{"location" : "top"}'));
+console.info('==========插件基础==========');
+/**
+  * 导航插件
+  *
+ */
+
+(function ($) {
+
+    var settings = {
+        'position' : 'left',
+        'background-color' : 'blue'
+    };
+
+    var methods = {
+      init : function( options ) {
+         return $(window).bind('resize.tooltip', methods.hover);
+      },
+      setBarColor :function ($this) {
+          $this.find('.nav-line').css('backgroundColor', settings['background-color']);
+      }
+    };
+
+    $.fn.navBar = function (options) {
+
+        return this.each(function() {
+
+            var $this = $(this);
+            var $liCur = $this.find('ul li.cur');
+            var curP = $liCur.position().left;
+            var curW = $liCur.outerWidth(true);
+            var  $slider = $($this.children()[1]);
+            var $targetEle = $this.find("ul li:not('.last')");
+
+            if (options) {
+              $.extend( settings, options );
+            }
+
+            methods[ 'setBarColor' ]($this);
+
+            $slider.stop(true, true).animate({
+              "left" : curP,
+              "width" : curW
+            });
+            $targetEle.mouseenter(function () {
+              var $_parent = $(this);
+              _width = $_parent.outerWidth(true),
+              posL = $_parent.position().left;
+
+              $slider.stop(true, true).animate({
+                "left" : posL,
+                "width" : _width
+              }, "fast");
+            });
+            $this.mouseleave(function (cur, wid) {
+              cur = curP;
+              wid = curW;
+              $slider.stop(true, true).animate({
+                "left" : cur,
+                "width" : wid
+              }, "fast");
+            });
+        });
+    }
+})(jQuery);
+
+$('.nav-box').navBar(jQuery.parseJSON('{"background-color" : "#FFB500"}'));
+
+</script>
+
+</html>
